@@ -255,7 +255,7 @@ func (li *Li) AppendList(list *List) {
 	li.child = list
 }
 
-// AppendList 讲新的list添加到目标list的尾节点上
+// AppendList 讲新的list添加到目标list的尾节点li上
 func (list *List) AppendList(l *List) {
 	list.tail.AppendList(l)
 }
@@ -292,7 +292,7 @@ func (title *Title) Build(buf *bytes.Buffer) error {
 // Build 创建表格
 func (table *Table) Build(buf *bytes.Buffer) (err error) {
 	//header
-	//eg:%-99s
+	//格式化对齐 eg:%-99s
 	var format string = "| %-" + strconv.Itoa(table.maxLength) + "s "
 	for i := 0; i < table.col; i++ {
 		_, err = buf.WriteString(fmt.Sprintf(format, table.texts[i].line))
@@ -349,7 +349,7 @@ func (lk *Link) Build(buf *bytes.Buffer) (err error) {
 	return nil
 }
 
-// build 无须列表排序
+// createSort 无须列表排序
 func (ul *UnOrderedList) createSort(buffer *bytes.Buffer, list *List, recursiveNum int) (err error) {
 	node := list.head
 	for node != nil {
@@ -360,7 +360,10 @@ func (ul *UnOrderedList) createSort(buffer *bytes.Buffer, list *List, recursiveN
 		child := node.child
 		if node.child != nil {
 			// 递归排序孩子列表
-			child.sorter.createSort(buffer, child, recursiveNum+1)
+			err = child.sorter.createSort(buffer, child, recursiveNum+1)
+			if err != nil {
+				return err
+			}
 		}
 		node = node.next
 	}
@@ -368,7 +371,7 @@ func (ul *UnOrderedList) createSort(buffer *bytes.Buffer, list *List, recursiveN
 	return nil
 }
 
-// build 有序列表排序
+// createSort 有序列表排序
 func (ol *OrderedList) createSort(buffer *bytes.Buffer, list *List, recursiveNum int) (err error) {
 	node := list.head
 	index := 1
@@ -380,7 +383,10 @@ func (ol *OrderedList) createSort(buffer *bytes.Buffer, list *List, recursiveNum
 		child := node.child
 		if node.child != nil {
 			// 递归排序孩子列表
-			child.sorter.createSort(buffer, child, recursiveNum+1)
+			err = child.sorter.createSort(buffer, child, recursiveNum+1)
+			if err != nil {
+				return err
+			}
 		}
 		// 下标加1
 		index++
@@ -420,7 +426,7 @@ func (table *Table) AddIgnoreError(data string) *Table {
 	return table
 }
 
-// Update 更新某个格子内容 注意这里是填人的常规意识的数组下标
+// Update 更新某个格子内容 注意这里是填人类的常规意识的数组下标
 func (table *Table) Update(rowIdx int, colIdx int, data string) *Table {
 	rowIdx--
 	colIdx--
