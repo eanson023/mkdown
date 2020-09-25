@@ -6,10 +6,10 @@
 ## List of Contents
 
 
-1. [介绍](https://github.com/eanson023/mkdown/#介绍)
-2. [基本用法](https://github.com/eanson023/mkdown/#基本用法)
-   * [安装](https://github.com/eanson023/mkdown/#安装)
-   * [使用](https://github.com/eanson023/mkdown/#使用)
+1. [介绍](https://github.com/eanson023/mkdown#介绍)
+2. [基本用法](https://github.com/eanson023/mkdown#基本用法)
+   * [安装](https://github.com/eanson023/mkdown#安装)
+   * [使用](https://github.com/eanson023/mkdown#使用)
 
 
 ## 介绍
@@ -59,7 +59,7 @@ func main() {
 	// 表格 两行两列
 	table := mkdown.NewTable(2, 2).Add("性能").Add("简易度").Add("⭐").Update(2, 2, "⭐⭐⭐")
 	// 嵌套列表举例
-	const link = "https://github.com/eanson023/mkdown/#"
+	const link = "https://github.com/eanson023/mkdown#"
 	title6 := mkdown.NewTitleWithText(mkdown.Heading2, "List of Contents")
 	// 创建有序列表
 	ol := mkdown.NewOrderedList()

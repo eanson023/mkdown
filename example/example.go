@@ -28,7 +28,7 @@ func main() {
 	// 表格 两行两列
 	table := mkdown.NewTable(2, 2).Add("性能").Add("简易度").Add("⭐").Update(2, 2, "⭐⭐⭐")
 	// 嵌套列表举例
-	const link = "https://github.com/eanson023/mkdown/#"
+	const link = "https://github.com/eanson023/mkdown#"
 	title6 := mkdown.NewTitleWithText(mkdown.Heading2, "List of Contents")
 	// 创建有序列表
 	ol := mkdown.NewOrderedList()
@@ -60,7 +60,7 @@ func main() {
 	// 表格 两行两列
 	table := mkdown.NewTable(2, 2).Add("性能").Add("简易度").Add("⭐").Update(2, 2, "⭐⭐⭐")
 	// 嵌套列表举例
-	const link = "https://github.com/eanson023/mkdown/#"
+	const link = "https://github.com/eanson023/mkdown#"
 	title6 := mkdown.NewTitleWithText(mkdown.Heading2, "List of Contents")
 	// 创建有序列表
 	ol := mkdown.NewOrderedList()
