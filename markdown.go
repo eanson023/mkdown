@@ -462,3 +462,18 @@ func (lk *Link) generateLink() string {
 func (lk *Link) String() string {
 	return lk.generateLink()
 }
+
+// NewStrongString 加粗字体
+func NewStrongString(data string) string {
+	return fmt.Sprintf("**%s**", data)
+}
+
+// NewEmphasisString 斜体字体
+func NewEmphasisString(data string) string {
+	return fmt.Sprintf("*%s*", data)
+}
+
+// NewUnderlineString 下划线字体
+func NewUnderlineString(data string) string {
+	return fmt.Sprintf("<u>%s</u>", data)
+}
