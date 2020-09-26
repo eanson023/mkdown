@@ -1,11 +1,14 @@
 package mkdown
 
-import "strconv"
-import "os"
-import "errors"
-import "strings"
-import "fmt"
-import "bytes"
+import (
+	"bufio"
+	"bytes"
+	"errors"
+	"fmt"
+	"os"
+	"strconv"
+	"strings"
+)
 
 // Heading 标题
 type Heading byte
@@ -44,10 +47,12 @@ type Table struct {
 	row   int
 	col   int
 	texts []*Text
-	// 实际存储大小
+	// 当前存储大小
 	size int
-	// 表格中内容最大长度大小
-	maxLength int
+	// 实际存储大小
+	capacity int
+	// 表格中内容最大长度大小  用于格式化数据
+	contentMaxLength int
 }
 
 // Title 标题
@@ -136,12 +141,14 @@ func NewTitleWithText(heading Heading, title string) *Title {
 
 // NewTable 创建新的表格
 func NewTable(row int, col int) *Table {
+	capacity := row * col
 	return &Table{
-		row:       row,
-		col:       col,
-		texts:     make([]*Text, row*col),
-		size:      0,
-		maxLength: 0,
+		row:              row,
+		col:              col,
+		texts:            make([]*Text, capacity),
+		size:             0,
+		capacity:         capacity,
+		contentMaxLength: 0,
 	}
 }
 
@@ -217,7 +224,8 @@ func (md *Markdown) Store() {
 		panic(err)
 	}
 	defer file.Close()
-	if _, err = md.buf.WriteTo(file); err != nil {
+	writer := bufio.NewWriter(file)
+	if _, err = md.buf.WriteTo(writer); err != nil {
 		panic(err)
 	}
 
@@ -293,7 +301,7 @@ func (title *Title) Build(buf *bytes.Buffer) error {
 func (table *Table) Build(buf *bytes.Buffer) (err error) {
 	//header
 	//格式化对齐 eg:%-99s
-	var format string = "| %-" + strconv.Itoa(table.maxLength) + "s "
+	var format string = "| %-" + strconv.Itoa(table.contentMaxLength) + "s "
 	for i := 0; i < table.col; i++ {
 		_, err = buf.WriteString(fmt.Sprintf(format, table.texts[i].line))
 	}
@@ -302,7 +310,7 @@ func (table *Table) Build(buf *bytes.Buffer) (err error) {
 	}
 	err = writeLine("|", buf)
 	// 分割线
-	buf.WriteString(strings.Repeat(fmt.Sprintf("| %s ", strings.Repeat("-", table.maxLength)), table.col) + "|\r\n")
+	buf.WriteString(strings.Repeat(fmt.Sprintf("| %s ", strings.Repeat("-", table.contentMaxLength)), table.col) + "|\r\n")
 	// 内容
 	for r := 1; r < table.row; r++ {
 		for c := 0; c < table.col; c++ {
@@ -398,12 +406,11 @@ func (ol *OrderedList) createSort(buffer *bytes.Buffer, list *List, recursiveNum
 
 // Add 添加到表格得格子中 多了将panic异常
 func (table *Table) Add(data string) *Table {
-	length := table.row * table.col
-	if table.size >= length {
+	if table.size >= table.capacity {
 		panic(errors.New("the table size will overflow"))
 	}
-	if len(data) > table.maxLength {
-		table.maxLength = len(data)
+	if len(data) > table.contentMaxLength {
+		table.contentMaxLength = len(data)
 	}
 	index := table.size
 	table.texts[index] = NewText(data)
@@ -413,12 +420,11 @@ func (table *Table) Add(data string) *Table {
 
 // AddIgnoreError 直接链式编程但忽略了错误 多了会返回nil
 func (table *Table) AddIgnoreError(data string) *Table {
-	length := table.row * table.col
-	if table.size >= length {
+	if table.size >= table.capacity {
 		return nil
 	}
-	if len(data) > table.maxLength {
-		table.maxLength = len(data)
+	if len(data) > table.contentMaxLength {
+		table.contentMaxLength = len(data)
 	}
 	index := table.size
 	table.texts[index] = NewText(data)
@@ -433,8 +439,8 @@ func (table *Table) Update(rowIdx int, colIdx int, data string) *Table {
 	if rowIdx < 0 || rowIdx >= table.row || colIdx < 0 || colIdx >= table.col {
 		panic(errors.New("the width or length index of the table must be within the specified range of the table"))
 	}
-	if len(data) > table.maxLength {
-		table.maxLength = len(data)
+	if len(data) > table.contentMaxLength {
+		table.contentMaxLength = len(data)
 	}
 	table.texts[rowIdx*table.row+colIdx] = NewText(data)
 	return table
